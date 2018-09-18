@@ -3488,7 +3488,7 @@ var make_offcrypto = function(O, _crypto) {
 };
 /*global crypto:true */
 make_offcrypto(OFFCRYPTO, typeof crypto !== "undefined" ? crypto : undefined);
-
+var utils;
 function decode_row(rowstr) { return parseInt(unfix_row(rowstr),10) - 1; }
 function encode_row(row) { return "" + (row + 1); }
 function fix_row(cstr) { return cstr.replace(/([A-Z]|^)(\d+)$/,"$1$$$2"); }
@@ -7482,7 +7482,7 @@ var PRN = (function() {
 				var coord = encode_cell({r:R,c:C});
 				cell = dense ? (ws[R]||[])[C] : ws[coord];
 				if(!cell || cell.v == null) { oo.push("          "); continue; }
-				var w = (cell.w || (format_cell(cell), cell.w) || "").slice(0,10);
+				var w = (cell.w || (utils.format_cell(cell), cell.w) || "").slice(0,10);
 				while(w.length < 10) w += " ";
 				oo.push(w + (C === 0 ? " " : ""));
 			}
@@ -8461,7 +8461,7 @@ var RTF = (function() {
 				var coord = encode_cell({r:R,c:C});
 				cell = dense ? (ws[R]||[])[C]: ws[coord];
 				if(!cell || cell.v == null && (!cell.f || cell.F)) continue;
-				o.push(" " + (cell.w || (format_cell(cell), cell.w)));
+				o.push(" " + (cell.w || (utils.format_cell(cell), cell.w)));
 				o.push("\\cell");
 			}
 			o.push("\\pard\\intbl\\row");
@@ -18888,7 +18888,7 @@ var HTML_ = (function() {
 			if(RS > 1) sp.rowspan = RS;
 			if(CS > 1) sp.colspan = CS;
 			/* TODO: html entities */
-			var w = (cell && cell.v != null) && (cell.h || escapehtml(cell.w || (format_cell(cell), cell.w) || "")) || "";
+			var w = (cell && cell.v != null) && (cell.h || escapehtml(cell.w || (utils.format_cell(cell), cell.w) || "")) || "";
 			sp.t = cell && cell.t || 'z';
 			if(o.editable) w = '<span contenteditable="true">' + w + '</span>';
 			sp.id = "sjs-" + coord;
@@ -20493,7 +20493,7 @@ function make_json_row(sheet, r, R, cols, header, hdr, dense, o) {
 				else if(raw && v === null) row[hdr[C]] = null;
 				else continue;
 			} else {
-				row[hdr[C]] = raw ? v : format_cell(val,v,o);
+				row[hdr[C]] = raw ? utils.format_cell(v) : utils.format_cell(val,v,o);
 			}
 			if(v != null) isempty = false;
 		}
@@ -20533,7 +20533,7 @@ function sheet_to_json(sheet, opts) {
 			case 3: hdr[C] = o.header[C - r.s.c]; break;
 			default:
 				if(val == null) val = {w: "__EMPTY", t: "s"};
-				vv = v = format_cell(val, null, o);
+				vv = v = utils.format_cell(val, null, o);
 				counter = 0;
 				for(CC = 0; CC < hdr.length; ++CC) if(hdr[CC] == vv) vv = v + "_" + (++counter);
 				hdr[C] = vv;
@@ -20557,7 +20557,7 @@ function make_csv_row(sheet, r, R, cols, fs, rs, FS, o) {
 		if(val == null) txt = "";
 		else if(val.v != null) {
 			isempty = false;
-			txt = ''+format_cell(val, null, o);
+			txt = ''+utils.format_cell(val, null, o);
 			for(var i = 0, cc = 0; i !== txt.length; ++i) if((cc = txt.charCodeAt(i)) === fs || cc === rs || cc === 34) {txt = "\"" + txt.replace(qreg, '""') + "\""; break; }
 			if(txt == "ID") txt = '"ID"';
 		} else if(val.f != null && !val.F) {
@@ -20689,7 +20689,7 @@ function sheet_add_json(_ws, js, opts) {
 }
 function json_to_sheet(js, opts) { return sheet_add_json(null, js, opts); }
 
-var utils = {
+utils = {
 	encode_col: encode_col,
 	encode_row: encode_row,
 	encode_cell: encode_cell,

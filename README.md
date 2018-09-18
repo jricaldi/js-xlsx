@@ -1,3 +1,10 @@
+**IMPORTANT!**
+
+This fork:
+
+- add the ability to specify a custom `format_cell` method by overiding the exported version
+
+
 # [SheetJS js-xlsx](http://sheetjs.com)
 
 Parser and writer for various spreadsheet formats.  Pure-JS cleanroom
